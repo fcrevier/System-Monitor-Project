@@ -3,7 +3,7 @@
 
 int main() {
   // Set buffer size for cpu utilization
-  int bufferLength = 100;
+  int bufferLength = 10;
   System system(bufferLength);
 
   //System system; // default buffer

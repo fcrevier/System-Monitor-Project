@@ -44,13 +44,10 @@ void Process::setCpuUtil() {
   long prevUpTime = upTimeBuffer_[bufferIndex_];
   long dActiveTime = activeTime - prevActiveTime;
   long dUpTime = upTime  - prevUpTime;
-  bool stop = true;
+
   // Write to buffer
   activeTimeBuffer_[bufferIndex_] = activeTime;
   upTimeBuffer_[bufferIndex_] = upTime;
-  if (dActiveTime > 0){ 
-    stop = false;
-    }
   cpuUtil_ = (dActiveTime > 0 && dUpTime > 0) ? float(dActiveTime)/float(dUpTime) : 0.;
   if (bufferIndex_ == bufferLength_-1) { 
     bufferIndex_= 0;
@@ -65,13 +62,21 @@ string Process::Command() { return command_; }
 // TODO: Return this process's memory utilization
 string Process::Ram() { 
   long ram;
+  string pad;
   try {
     ram = stol(LinuxParser::Ram(id_))/1000; 
   }
   catch (const std::invalid_argument& e) {
     ram = 0;
   }
-  return to_string(ram);
+  if (ram > 9999) { return "OVER"; }
+
+  if (ram < 10) { pad = "000"; }
+  else if (ram < 100) { pad = "00"; }
+  else if (ram < 1000) { pad = "0"; }
+  else { pad = ""; }
+
+  return pad + to_string(ram);
 }
 
 // TODO: Return the user (name) that generated this process

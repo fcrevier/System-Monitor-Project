@@ -130,7 +130,7 @@ long LinuxParser::ActiveJiffies(int pid) {
   if (stream.is_open()) {
     std::getline(stream, line);
     std::istringstream linestream(line);
-    for (int i = 0; i <= 17; i++) {
+    for (int i = 1; i <= 17; i++) {
       linestream >> temp;
       if (i >= 14) { active += stol(temp); }
     }

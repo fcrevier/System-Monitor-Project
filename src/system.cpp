@@ -15,7 +15,7 @@ using std::size_t;
 using std::string;
 using std::vector;
 
-const int DEFAULT_BUFFER_LENGTH = 1000;
+const int DEFAULT_BUFFER_LENGTH = 5;
 
 System::System() : cpu_(Processor(DEFAULT_BUFFER_LENGTH)){
   std::vector<int> pids = LinuxParser::Pids();
