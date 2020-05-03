@@ -1,14 +1,17 @@
 #ifndef PROCESSOR_H
 #define PROCESSOR_H
+#include <vector>
 
 class Processor {
  public:
-  Processor();
+  Processor(int bufferLength);
   float Utilization(); 
 
  private:
-  long int totalJiffies_;
-  long int idleJiffies_;
+  int bufferLength_;
+  int bufferIndex_ = 0;
+  std::vector<long> totalJiffiesBuffer_;
+  std::vector<long> idleJiffiesBuffer_;
 };
 
 #endif

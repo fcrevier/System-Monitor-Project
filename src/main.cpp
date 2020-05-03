@@ -2,6 +2,10 @@
 #include "system.h"
 
 int main() {
-  System system;
+  // Set buffer size for cpu utilization
+  int bufferLength = 100;
+  System system(bufferLength);
+
+  //System system; // default buffer
   NCursesDisplay::Display(system);
 }

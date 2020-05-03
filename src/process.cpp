@@ -12,14 +12,21 @@ using std::to_string;
 using std::vector;
 using std::stol;
 
-Process::Process(int pid) : id_(pid) {
-  //activeTime_ = LinuxParser::ActiveJiffies(id_)/sysconf(_SC_CLK_TCK);
-  //timeStamp_ = LinuxParser::UpTime();
+Process::Process(int pid, int bufferLength) : id_(pid), bufferLength_(bufferLength), activeTimeBuffer_(bufferLength), upTimeBuffer_(bufferLength) {
   user_ = LinuxParser::User(id_);
   command_ = LinuxParser::Command(id_);
+
+  // init buffers
+  long activeTime = LinuxParser::ActiveJiffies(id_)/sysconf(_SC_CLK_TCK);
+  long upTime = LinuxParser::UpTime(id_);
+  for(auto& elem : activeTimeBuffer_) {
+    elem = activeTime;
+  }
+  for(auto& elem : upTimeBuffer_) {
+    elem = upTime;
+  }
   setCpuUtil();
 }
-
 // TODO: Return this process's ID
 int Process::Pid() { return id_; }
 
@@ -31,25 +38,27 @@ float Process::CpuUtilization() {
 
 void Process::setCpuUtil() {
   long activeTime = LinuxParser::ActiveJiffies(id_)/sysconf(_SC_CLK_TCK);
-  long uptime = LinuxParser::UpTime(id_);
-  //long dActiveTime = currActiveTime - activeTime_;
-  //long dTime =  currTime - timeStamp_;
-  float output = 0.; // for debug;
+  long upTime = LinuxParser::UpTime(id_);
 
-  /*
-  activeTime_ = currActiveTime;
-  timeStamp_ = currTime;
-  if(dTime !=0 && dActiveTime > 0) { 
-    output = float(dActiveTime)/float(dTime); 
+  long prevActiveTime = activeTimeBuffer_[bufferIndex_];
+  long prevUpTime = upTimeBuffer_[bufferIndex_];
+  long dActiveTime = activeTime - prevActiveTime;
+  long dUpTime = upTime  - prevUpTime;
+  bool stop = true;
+  // Write to buffer
+  activeTimeBuffer_[bufferIndex_] = activeTime;
+  upTimeBuffer_[bufferIndex_] = upTime;
+  if (dActiveTime > 0){ 
+    stop = false;
+    }
+  cpuUtil_ = (dActiveTime > 0 && dUpTime > 0) ? float(dActiveTime)/float(dUpTime) : 0.;
+  if (bufferIndex_ == bufferLength_-1) { 
+    bufferIndex_= 0;
   }
-  else { output = 0.; }
-  */
-  if (uptime > 0) {
-    output = float(activeTime)/float(uptime);
+  else {
+    bufferIndex_++;
   }
-  cpuUtil_ = output;
 }
-
 // TODO: Return the command that generated this process
 string Process::Command() { return command_; }
 

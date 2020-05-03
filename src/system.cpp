@@ -15,11 +15,20 @@ using std::size_t;
 using std::string;
 using std::vector;
 
-System::System() {
-  cpu_ = Processor();
+const int DEFAULT_BUFFER_LENGTH = 1000;
+
+System::System() : cpu_(Processor(DEFAULT_BUFFER_LENGTH)){
   std::vector<int> pids = LinuxParser::Pids();
   for (int const& pid : pids) {
-    processes_.push_back(Process(pid));
+    processes_.push_back(Process(pid, DEFAULT_BUFFER_LENGTH));
+  }
+  std::sort(processes_.begin(), processes_.end());
+}
+
+System::System(int bufferLength) : cpu_(Processor(bufferLength)){
+  std::vector<int> pids = LinuxParser::Pids();
+  for (int const& pid : pids) {
+    processes_.push_back(Process(pid, bufferLength));
   }
   std::sort(processes_.begin(), processes_.end());
 }
